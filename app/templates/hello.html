@@ -1,0 +1,1195 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>疫情数据展示</title>
+    <script src="{{ url_for('static', filename='echarts.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='china.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='jquery-3.5.1.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='layui/layui.js') }}" type="text/javascript"></script>
+    <link href="{{ url_for('static', filename='layui/css/layui.css') }}" media="all" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.14.0/css/all.min.css" rel="stylesheet">
+    <link href="http://cdn.datatables.net/1.10.21/css/jquery.dataTables.css" rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static', filename='scrollTop_iconStyle.css') }}" media="all" rel="stylesheet">
+    <script src="{{ url_for('static', filename='scrollTop_script.js') }}" type="text/javascript"></script>
+    <script charset="utf8" src="http://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"
+            type="text/javascript"></script>
+    <link href="{{ url_for('static', filename='cell.css') }}" media="all" rel="stylesheet" type="text/css">
+</head>
+<body bgcolor="#5f9ea0">
+<div class="layui-btn-container" style="position: fixed">
+    <a href="#chinaInfo">
+        <button class="layui-btn layui-btn-radius" type="button">国内疫情</button>
+    </a>
+    <a href="#worldInfo">
+        <button class="layui-btn layui-btn-radius" type="button">世界疫情</button>
+    </a>
+</div>
+<div class="layui-main" id="main" style="background-color: #ffffff">
+    <br>
+    <h1 id="chinaInfo" style="text-align: center">国内疫情</h1>
+    <div><span id="home_overview" style="color: #8d8d8d; font-size: x-small">更新时间</span></div>
+    <div>
+        <table class="layui-table " id="chinaOverview" lay-size="lg" style="text-align: center">
+            <thead style="text-align: center">
+            <tr class="center">
+                <th style="text-align: center">现有确诊</th>
+                <th style="text-align: center">无症状</th>
+                <th style="text-align: center">现有疑似</th>
+                <th style="text-align: center">现有重症</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><span class="curConfirm cell" id="home_curConfirm"></span>
+                    <div class="grayWord">昨日<span class="curConfirm Relative" id="home_curConfirmRelative"></span></div>
+                </td>
+                <td><span class="asymptomatic cell" id="home_asymptomatic"></span>
+                    <div class="grayWord">昨日<span class="asymptomatic Relative" id="home_asymptomaticRelative"></span>
+                    </div>
+                </td>
+                <td><span class="unconfirmed cell" id="home_unconfirmed"></span>
+                    <div class="grayWord">昨日<span class="unconfirmed Relative" id="home_unconfirmedRelative"></span>
+                    </div>
+                </td>
+                <td><span class="icu cell" id="home_icu"></span>
+                    <div class="grayWord">昨日<span class="icu Relative" id="home_icuRelative"></span></div>
+                </td>
+            </tr>
+            </tbody>
+            <thead>
+            <tr>
+                <th style="text-align: center">累计确诊</th>
+                <th style="text-align: center">境外输入</th>
+                <th style="text-align: center">累计治愈</th>
+                <th style="text-align: center">累计死亡</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><span class="confirmed cell" id="home_confirmed"></span>
+                    <div class="grayWord">昨日<span class="confirmed Relative" id="home_confirmedRelative"></span></div>
+                </td>
+                <td><span class="overseasInput cell" id="home_overseasInput"></span>
+                    <div class="grayWord">昨日<span class="overseasInput Relative" id="home_overseasInputRelative"></span>
+                    </div>
+                </td>
+                <td><span class="cured cell" id="home_cured"></span>
+                    <div class="grayWord">昨日<span class="Relative cured" id="home_curedRelative"></span></div>
+                </td>
+                <td><span class="died cell" id="home_died"></span>
+                    <div class="grayWord">昨日<span class="died Relative" id="home_diedRelative"></span></div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="chinaMap" style="width: 100%; height: 600px"></div>
+    </br>
+    <br>
+    <br>
+    <div id="pie1" style="width:100%;height:600px"></div>
+    <div id="bar1" style="width:100%; height: 400px"></div>
+    <div class="layui-tab layui-tab-card">
+        <ul class="layui-tab-title" style="height: 79px">
+            <li class="layui-this" style="width: 30%;">
+                <span>境外输入</span><br/>
+                <span>新增趋势</span>
+            </li>
+            <li style="width: 31%">
+                <span>境外输入</span><br/>
+                <span>累计趋势</span>
+            </li>
+            <li style="width: 30%">
+                <span>境外输入</span><br/>
+                <span>省级TOP10</span>
+            </li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show" id="newInOverseas"
+                 style="width:1000px;height: 400px"></div>
+            <div class="layui-tab-item" id="sumInOverseas" style="width:1000px;height: 400px"></div>
+            <div class="layui-tab-item" id="provinceTop10" style="width:1000px;height: 400px"></div>
+        </div>
+    </div>
+    <div class="layui-tab layui-tab-card">
+        <ul class="layui-tab-title" style="height: 79px">
+            <li class="layui-this" style="width: 22%;">
+                <span>全国疫情</span><br/>
+                <span>新增趋势</span>
+            </li>
+            <li style="width: 23%">
+                <span>全国确诊</span><br/>
+                <span>疑似趋势</span>
+            </li>
+            <li style="width: 23%">
+                <span>全国累计</span><br/>
+                <span>治愈死亡</span>
+            </li>
+            <li style="width: 22%">
+                <span>治愈率</span><br/>
+                <span>死亡率</span>
+            </li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item" id="allProvinceNewTrends"
+                 style="width:1100px; height:400px"></div>
+            <div class="layui-tab-item layui-show" id="allProvinceSumTrends"
+                 style="width:1100px; height:400px"></div>
+            <div class="layui-tab-item" id="allProvinceDiedCured" style="width:1100px; height:400px"></div>
+            <div class="layui-tab-item" id="cureRateDieRate" style="width:1100px; height: 400px"></div>
+        </div>
+    </div>
+
+    <table class="display" id="chinaDetails" style="width:100%">
+        <thead>
+        <tr>
+            <th>疫情地区</th>
+            <th>新增</th>
+            <th>现有</th>
+            <th>累计</th>
+            <th>治愈</th>
+            <th>死亡</th>
+        </tr>
+        </thead>
+    </table>
+    <h1 id="worldInfo" style="text-align: center">世界疫情</h1>
+    <div><span id="foreignUpdatedTime" style="color: #8d8d8d; font-size: x-small">更新时间至</span></div>
+    <div>
+        <table class="layui-table" id="foreignTable" lay-size="lg" style="text-align: center">
+            <thead>
+            <tr>
+                <th style="text-align: center">现有确诊</th>
+                <th style="text-align: center">累计确诊</th>
+                <th style="text-align: center">累计治愈</th>
+                <th style="text-align: center">累计死亡</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <tr>
+                <td><span class="curConfirm cell" id="curConfirm"></span></td>
+                <td><span class="confirmed cell" id="confirmed"></span>
+                    <div class="grayWord">昨日<span class="confirmed Relative" id="confirmedRelative"></span></div>
+                </td>
+                <td><span class="cured cell" id="cured"></span>
+                    <div class="grayWord">昨日<span class="Relative cured" id="curedRelative"></span></div>
+                </td>
+                <td><span class="died cell" id="died"></span>
+                    <div class="grayWord">昨日<span class="died Relative" id="diedRelative"></span></div>
+                </td>
+            </tr>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!--    <div id="worldMap" style="width: 100%; height: 600px"></div>-->
+    <div>
+        <table class="display" id="worldDetails" style="width:100%">
+            <thead style="text-align: center">
+            <tr>
+                <th>疫情地区</th>
+                <th>新增</th>
+                <th>现有</th>
+                <th>累计</th>
+                <th>治愈</th>
+                <th>死亡</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+</div>
+<div class="scrollTop_top">
+    <i class="fa fa-angle-double-up fa-4x"></i>
+</div>
+<footer style="text-align: center">Copyright © 2020</footer>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    let chinaMap = echarts.init(document.getElementById('chinaMap'))
+    let option = {
+        tooltip: {
+            trigger: 'item',
+            formatter: "省份：{b}<br/>确诊：{c}"
+        },
+        textStyle: {color: '#000000'},
+        title: {
+            left: 'center',
+            text: '中国疫情地图（现有确诊人数）',
+            subtext: '数据更新时间: ',
+            textStyle: {
+                color: "rgba(0, 0, 0)",
+                fontSize: 20,
+                align: "center"
+            }
+        },
+        visualMap: {
+            left: 'left',
+            top: 'bottom',
+            splitNumber: 7,
+            pieces: [
+                {value: 0},
+                {min: 0, max: 9},
+                {min: 10, max: 49},
+                {min: 50, max: 99},
+                {min: 100, max: 999},
+                {min: 1000, max: 9999},
+                {min: 10000}
+            ],
+            textStyle: {
+                color: "#000"
+            },
+            inRange: {
+                color: ["#FFFFFF", "#FFE5DB", "#FFC4B3", "#FF9985",
+                    "#F57567", "#E64546", "#B80909"]
+            },
+            outOfRange: {
+                color: "#FFFFFF"
+            },
+            show: true
+        },
+        geo: {
+            map: 'china',
+            roam: false,//不开启缩放和平移
+            zoom: 1.23,//视角缩放比例
+            label: {
+                normal: {
+                    show: true,
+                    fontSize: '10',
+                    color: 'rgba(0,0,0,0.7)'
+                }
+            },
+            itemStyle: {
+                normal: {
+                    borderColor: 'rgba(0, 0, 0, 0.2)'
+                },
+                emphasis: {
+                    areaColor: '#AEEEEE',//鼠标悬停区域颜色
+                    shadowOffsetX: 0,
+                    shadowOffsetY: 0,
+                    shadowBlur: 20,
+                    borderWidth: 0,
+                    shadowColor: 'rgba(255, 255, 255, 0.5)'
+                }
+            }
+        },
+        series: [
+            {
+                name: '现有确诊数',
+                type: 'map',
+                map: 'china',
+                geoIndex: 0,
+                roam: true,
+                label: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            color: 'rgb(ff, ff, ff)',
+                            fontSize: 14
+                        }
+                    }
+                },
+                data: []
+            }
+        ]
+    };
+    $.ajax({
+        cache: false,
+        type: "GET",
+        url: "/get_province_daily_datas",
+        data: null,
+        dataType: "json",
+        async: false,
+        error: function (request) {
+            alert("发送请求失败！");
+        },
+        success: function (result) {
+            for (i = 0, max = result.areas.length; i < max; ++i) {
+                option.series[0].data.push({
+                    name: result.areas[i],
+                    value: result.curConfirms[i]
+                })
+            }
+            option.title.subtext = '数据更新时间: ' + result.pub_date
+        }
+    });
+    chinaMap.setOption(option);
+
+    let myChart = echarts.init(document.getElementById('pie1'));
+    let option1 = {
+        title: {
+            show: true,
+            text: '国内最近一日现存确诊病例数TOP5',
+            subtext: '',
+            left: 'center',
+            textStyle: {
+                color: "rgba(0, 0, 0)",
+                fontSize: 20,
+                align: "center"
+            }
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b}: {c} ({d}%)'
+        },
+        textStyle: {
+            color: 'rgba(0, 0, 0, 0.3)'
+        },
+        legend: {
+            type: 'scroll',
+            orient: 'vertical',
+            right: 100,
+            top: 100,
+            bottom: 20,
+            data: []
+        },
+        series: [{
+            name: '确诊数量',
+            type: 'pie',
+            radius: '55%',
+            center: ['50%', '50%'],
+            data: [],
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                },
+                label: {
+                    show: true,
+                    fontSize: '40',
+                    fontWeight: 'bold'
+                }
+            },
+            labelLine: {
+                normal: {
+                    lineStyle: {
+                        color: 'rgba(0, 0, 0, 0.4)'
+                    }
+                }
+            }
+        }]
+    };
+    $.ajax({
+        cache: false,
+        type: 'GET',
+        url: "/get_TOP5_confirmed",
+        data: null,
+        async: false,
+        error: function (request) {
+            alert('发送请求失败.')
+        },
+        success: function (results) {
+            for (i = 0, max = results.areas.length; i < max; ++i) {
+                option1.series[0].data.push({name: results.areas[i], value: results.curConfirms[i]})
+            }
+            option1.title.subtext = '数据更新时间: ' + results.pub_date
+        }
+    });
+    myChart.setOption(option1);
+
+    let bar1 = echarts.init(document.getElementById('bar1'));
+    let option2 = {
+
+        title: {
+            show: true,
+            text: '全国无症状感染者分布',
+            subtext: '',
+            left: 'left',
+            textStyle: {
+                color: "rgba(0, 0, 0)",
+                fontSize: 20,
+                align: "center"
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: []
+        },
+        yAxis: {
+            type: 'value'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: '{b}: {c}'
+        },
+        series: [{
+            data: [],
+            type: 'bar'
+        }]
+    };
+    $.ajax({
+        cache: false,
+        type: 'GET',
+        url: "/get_unconfirmedTOP10",
+        data: JSON,
+        async: false,
+        error: function (request) {
+            alert('发送请求失败.')
+        },
+        success: function (results) {
+            for (i = 0, max = results.areas.length; i < max; ++i) {
+                option2.xAxis.data.push(results.areas[i]);
+                option2.series[0].data.push(results.curConfirms[i]);
+            }
+            option2.title.subtext = '数据更新时间: ' + results.pub_date;
+        }
+    });
+    bar1.setOption(option2);
+
+    let newInOverseasChart = echarts.init(document.getElementById('newInOverseas'));
+    let option3 = {
+        xAxis: {
+            type: 'category',
+            data: [],
+            nameTextStyle: {
+                fontStyle: "italic"
+            }
+        },
+        title: {
+            show: true,
+            text: '境外输入新增趋势',
+            subtext: '',
+            left: 'left',
+            textStyle: {
+                color: "rgba(0, 0, 0)",
+                fontSize: 20,
+                align: "center"
+            }
+        },
+        tooltip: {
+            trigger: 'axis',
+            formatter: '{b}: {c}'
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [{
+            data: [],
+            type: 'line',
+            smooth: true
+        }]
+    };
+    $.ajax({
+        cache: false,
+        type: 'GET',
+        url: "/get_newInOverseasTrends",
+        data: JSON,
+        async: false,
+        error: function (request) {
+            alert('发送请求失败.')
+            console.log("test2")
+        },
+        success: function (results) {
+            for (i = 0, max = results.areas.length; i < max; ++i) {
+                option2.xAxis.data.push(results.dates[i]);
+                option2.series[0].data.push(results.nums[i]);
+                console.log(results.dates[i], results.nums[i])
+            }
+            console.log("test1")
+            option2.title.subtext = '数据更新时间: ' + results.pub_date;
+        }
+    });
+    newInOverseasChart.setOption(option3)
+
+    let sumInOverseasChart = echarts.init(document.getElementById('sumInOverseas'));
+    let option4 = {
+
+        title: {
+            show: true,
+            text: '境外输入累计趋势',
+            subtext: '',
+            left: 'left',
+            textStyle: {
+                color: "rgba(0, 0, 0)",
+                fontSize: 20,
+                align: "center"
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            nameTextStyle: {
+                fontStyle: "italic"
+            }
+        },
+        yAxis: {
+            type: 'value'
+        },
+        tooltip: {
+            trigger: 'axis',
+            formatter: '{b}: {c}'
+        },
+        series: [{
+            data: [820, 932, 901, 934, 1290, 1330, 1320],
+            type: 'line',
+
+            smooth: true
+        }]
+    };
+    $.ajax({
+        cache: false,
+        type: 'GET',
+        url: "/get_sumInOverseasTrends",
+        data: JSON,
+        async: false,
+        error: function (request) {
+            alert('发送请求失败.')
+        },
+        success: function (results) {
+            for (i = 0, max = results.areas.length; i < max; ++i) {
+                option2.xAxis.data.push(results.dates[i]);
+                option2.series[0].data.push(results.nums[i]);
+            }
+            option2.title.subtext = '数据更新时间: ' + results.pub_date;
+        }
+    });
+    sumInOverseasChart.setOption(option4)
+
+    let bar2 = echarts.init(document.getElementById('provinceTop10'));
+    let option5 = {
+        title: {
+            show: true,
+            text: '境外输入省级TOP10',
+            subtext: '',
+            left: 'left',
+            textStyle: {
+                color: "rgba(0, 0, 0)",
+                fontSize: 20,
+                align: "center"
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            nameTextStyle: {
+                fontStyle: "italic"
+            }
+
+        },
+        yAxis: {
+            type: 'value'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: '{b}: {c}'
+        },
+        series: [{
+            data: [120, 200, 150, 80, 70, 110, 130],
+            type: 'bar'
+        }]
+    };
+    $.ajax({
+        cache: false,
+        type: 'GET',
+        url: "/get_provinceTop10",
+        data: JSON,
+        async: false,
+        error: function (request) {
+            alert('发送请求失败.')
+        },
+        success: function (results) {
+            for (i = 0, max = results.areas.length; i < max; ++i) {
+                option2.xAxis.data.push(results.area[i]);
+                option2.series[0].data.push(results.confirmed[i]);
+            }
+            option2.title.subtext = '数据更新时间: ' + results.pub_date;
+        }
+    });
+    bar2.setOption(option5);
+
+    let allProvinceNewTrends = echarts.init(document.getElementById('allProvinceNewTrends'));
+    let option6 = {
+        title: {
+            text: '全国 总新增确诊/新增境外确诊 趋势'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['总新增确诊', '新增境外输入']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+            nameTextStyle: {
+                fontStyle: "italic"
+            }
+
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: '总新增确诊',
+                type: 'line',
+                data: [120, 132, 101, 134, 90, 230, 210],
+                smooth: true
+            },
+            {
+                name: '新增境外输入',
+                type: 'line',
+                data: [220, 182, 191, 234, 290, 330, 310],
+                smooth: true
+            }
+        ]
+    };
+    $.ajax({
+        cache: false,
+        type: 'GET',
+        url: "/get_allProvinceNewTrends10",
+        data: JSON,
+        async: false,
+        error: function (request) {
+            alert('发送请求失败.')
+        },
+        success: function (results) {
+            for (i = 0, max = results.areas.length; i < max; ++i) {
+                option2.xAxis.data.push(results.dates[i]);
+                option2.series[0].data.push(results.conConfirmed[i]);
+                option2.series[1].data.push(results.overSeasInput[i]);
+            }
+            option2.title.subtext = '数据更新时间: ' + results.pub_date;
+        }
+    });
+    allProvinceNewTrends.setOption(option6);
+
+    let allProvinceSumTrends = echarts.init(document.getElementById('allProvinceSumTrends'));
+    let option7 = {
+        title: {
+            text: '全国 现有确诊/疑似/累计确诊 趋势'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['现有确诊', '现有疑似', '累计确诊']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: [],
+            nameTextStyle: {
+                fontStyle: "italic"
+            }
+
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: '现有确诊',
+                type: "line",
+                data: [],
+                smooth: true
+            },
+            {
+                name: '现有疑似',
+                type: 'line',
+                data: [],
+                smooth: true
+            },
+            {
+                name: '累计确诊',
+                type: 'line',
+                data: [],
+                smooth: true
+            }
+        ]
+    };
+    $.ajax({
+        cache: false,
+        type: 'GET',
+        url: "/get_allProvinceSumTrends10",
+        data: JSON,
+        async: false,
+        error: function (request) {
+            alert('发送请求失败.')
+        },
+        success: function (results) {
+            for (i = 0, max = results.areas.length; i < max; ++i) {
+                option2.xAxis.data.push(results.dates[i]);
+                option2.series[0].data.push(results.curComfirm[i]);
+                option2.series[1].data.push(results.uncomfirmed[i]);
+                option2.series[2].data.push(results.comfirmed[i]);
+            }
+            option2.title.subtext = '数据更新时间: ' + results.pub_date;
+        }
+    });
+    allProvinceSumTrends.setOption(option7);
+
+
+    let allProvinceDiedCured = echarts.init(document.getElementById('allProvinceDiedCured'));
+    let option8 = {
+        title: {
+            text: '全国 累计治愈/死亡/ 趋势'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['治愈', '死亡']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: [],
+            nameTextStyle: {
+                fontStyle: "italic"
+            }
+
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: '治愈',
+                type: "line",
+                data: [],
+                smooth: true
+            },
+            {
+                name: '死亡',
+                type: 'line',
+                data: [],
+                smooth: true
+            }
+        ]
+    };
+    $.ajax({
+        cache: false,
+        type: 'GET',
+        url: "/get_allProvinceDiedCured10",
+        data: JSON,
+        async: false,
+        error: function (request) {
+            alert('发送请求失败.')
+        },
+        success: function (results) {
+            for (i = 0, max = results.areas.length; i < max; ++i) {
+                option2.xAxis.data.push(results.dates[i]);
+                option2.series[0].data.push(results.cured[i]);
+                option2.series[1].data.push(results.died[i]);
+            }
+            option2.title.subtext = '数据更新时间: ' + results.pub_date;
+        }
+    });
+    allProvinceDiedCured.setOption(option8);
+
+    let allProvinceDiedCuredRate = echarts.init(document.getElementById('cureRateDieRate'))
+    let option9 = {
+        title: {
+            text: '全国 治愈率/死亡率 趋势'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['治愈率', '死亡率']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: [],
+            nameTextStyle: {
+                fontStyle: "italic"
+            }
+
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: '治愈率',
+                type: "line",
+                data: [],
+                smooth: true
+            },
+            {
+                name: '死亡率',
+                type: 'line',
+                data: [],
+                smooth: true
+            }
+        ]
+    };
+    $.ajax({
+        cache: false,
+        type: 'GET',
+        url: "/get_allProvinceDiedCuredRate_10",
+        data: JSON,
+        async: false,
+        error: function (request) {
+            alert('发送请求失败.')
+        },
+        success: function (results) {
+            for (i = 0, max = results.areas.length; i < max; ++i) {
+                option2.xAxis.data.push(results.dates[i]);
+                option2.series[0].data.push(results.curedRate[i]);
+                option2.series[1].data.push(results.diedRate[i]);
+            }
+            option2.title.subtext = '数据更新时间: ' + results.pub_date;
+        }
+    });
+    allProvinceDiedCuredRate.setOption(option9);
+
+
+    /*    let worldMap = echarts.init(document.getElementById('chinaMap'))
+        let worldOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: "国家：{b}<br/>确诊：{c}"
+            },
+            textStyle: {color: '#000000'},
+            title: {
+                left: 'center',
+                text: '世界疫情地图（现有确诊人数）',
+                subtext: '数据更新时间: ',
+                textStyle: {
+                    color: "rgba(0, 0, 0)",
+                    fontSize: 20,
+                    align: "center"
+                }
+            },
+            visualMap: {
+                left: 'left',
+                top: 'bottom',
+                splitNumber: 7,
+                pieces: [
+                    {value: 0},
+                    {min: 0, max: 9},
+                    {min: 10, max: 49},
+                    {min: 50, max: 99},
+                    {min: 100, max: 999},
+                    {min: 1000, max: 9999},
+                    {min: 10000}
+                ],
+                textStyle: {
+                    color: "#000"
+                },
+                inRange: {
+                    color: ["#FFFFFF", "#FFE5DB", "#FFC4B3", "#FF9985",
+                        "#F57567", "#E64546", "#B80909"]
+                },
+                outOfRange: {
+                    color: "#FFFFFF"
+                },
+                show: true
+            },
+            geo: {
+                map: 'china',
+                roam: false,//不开启缩放和平移
+                zoom: 1.23,//视角缩放比例
+                label: {
+                    normal: {
+                        show: true,
+                        fontSize: '10',
+                        color: 'rgba(255,255,255,0.7)'
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        borderColor: 'rgba(0, 0, 0, 0.2)'
+                    },
+                    emphasis: {
+                        areaColor: '#AEEEEE',//鼠标悬停区域颜色
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 0,
+                        shadowBlur: 20,
+                        borderWidth: 0,
+                        shadowColor: 'rgba(255, 255, 255, 0.5)'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: '现有确诊数',
+                    type: 'map',
+                    map: 'world',
+                    geoIndex: 0,
+                    roam: true,
+                    label: {
+                        normal: {
+                            show: true,
+                            textStyle: {
+                                color: 'rgb(ff, ff, ff)',
+                                fontSize: 14
+                            }
+                        }
+                    },
+                    data: []
+                }
+            ]
+        };
+        let data_list = null;
+        $.ajax({
+                type: "GET",
+                url: "{{ url_for('static', filename='world.json') }}",
+                data: null,
+                dataType: "json",
+                async: false,
+                error: function (request) {
+                    alert("发送请求失败！");
+                },
+                success: function (result) {
+                    data_list = result.world;
+                }
+            });
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "{{ url_for('static', filename='test6.json') }}",
+            data: null,
+            dataType: "json",
+            async: false,
+            error: function (request) {
+                alert("发送请求失败！");
+            },
+            success: function (result) {
+                for (i = 0, max = result.areas.length; i < max; ++i) {
+                    if(result.name[i] === data_list)
+                    result.name[i] =
+                    option.series[0].data.push({
+                        name: result.name[i]
+                        value: result.value[i]
+                    })
+                }
+                worldOption.title.subtext = '数据更新时间: ' + result.pub_date
+            }
+        });
+        worldMap.setOption(worldOption);*/
+
+</script>
+<script type="text/javascript">
+    layui.use(['element'], function () {
+        let element = layui.element;
+    });
+</script>
+<script type="text/javascript">
+
+    $(".fa-chevron-right").on('click', function (event) {
+        var flag = $(this).attr("data-flag");
+        $(".click" + flag).toggle();
+        var $this = $(this);
+        if ($this.hasClass('fa-chevron-right')) {
+            $this.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+        } else {
+            $this.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+        }
+    });
+
+
+</script>
+<script type="text/javascript">
+    function format(d) {
+        // `d` is the original data object for the row
+        let subList = '', a = [];
+        for (i = 0, max = d.subList.length; i < max; i++) {
+            item = '<tr style="width: 100%; height: 100%">' +
+                '<td style="width: 22%">' + d.subList[i].city + '</td>' +
+                '<td style="width: 15%">' + d.subList[i].confirmedRelative + '</td>' +
+                '<td style="width: 15%">' + d.subList[i].curConfirm + '</td>' +
+                '<td style="width: 15%">' + d.subList[i].confirmed + '</td>' +
+                '<td style="width: 15%">' + d.subList[i].crued + '</td>' +
+                '<td style="width: 15%">' + d.subList[i].died + '</td>' +
+                '</tr>';
+            a.push(item);
+        }
+        let str = a.join("");
+        let table = '<table style="width: 100%"><tbody style="width: 100%; height: 100%">' + str + '</tbody></table>';
+        str = null;
+        return table;
+    }
+
+    $(document).ready(function () {
+        let table = $('#chinaDetails').DataTable({
+            "info": false,
+            "ajax": "{{ url_for('static', filename='test4.json') }}",
+            "columnDefs": [
+                {"color": "#f9ea0", "targets": 0}
+            ],
+            "columns": [
+                {
+                    "className": 'details-control',
+                    "data": "area"
+                },
+                {"data": "confirmedRelative"},
+                {"data": "curConfirm"},
+                {"data": "confirmed"},
+                {"data": "crued"},
+                {"data": "died"}
+
+            ],
+            "order": [[1, 'asc']]
+        });
+
+        // Add event listener for opening and closing details
+        $('#chinaDetails tbody').on('click', 'td.details-control', function () {
+            let tr = $(this).closest('tr');
+            let row = table.row(tr);
+
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            } else {
+                // Open this row
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+            }
+        });
+
+        let worldDTable = $('#worldDetails').DataTable({
+            "info": false,
+            "ajax": "{{ url_for('static', filename='test4.json') }}",
+            "columnDefs": [
+                {"color": "#f9ea0", "targets": 0}
+            ],
+            "columns": [
+                {"data": "area"},
+                {"data": "confirmedRelative"},
+                {"data": "curConfirm"},
+                {"data": "confirmed"},
+                {"data": "crued"},
+                {"data": "died"}
+            ],
+            "order": [[1, 'asc']]
+        });
+    });
+</script>
+<script type="text/javascript">
+    $.ajax({
+        cache: false,
+        type: "GET",
+        url: "/get_home_realtime_datas",
+        data: null,
+        dataType: "json",
+        async: false,
+        error: function (request) {
+            alert("全国疫情概况发送请求失败！");
+        },
+        success: function (result) {
+            $.each(result, function (i, v) {
+                if (i.endsWith("Relative")) {
+                    if (v >= 0) {
+                        result[i] = "+" + v;
+                    } else {
+                        result[i] = "-" + v;
+                    }
+                }
+            })
+            $('#home_curConfirm')[0].innerHTML = result.curConfirm;
+            $('#home_curConfirmRelative')[0].innerText = result.curConfirmRelative;
+            $('#home_asymptomatic')[0].innerText = result.asymptomatic;
+            $('#home_asymptomaticRelative')[0].innerText = result.asymptomaticRelative;
+            $('#home_unconfirmed')[0].innerText = result.unconfirmed;
+            $('#home_unconfirmedRelative')[0].innerText = result.unconfirmedRelative;
+            $('#home_icu')[0].innerText = result.icu;
+            $('#home_icuRelative')[0].innerText = result.icuRelative;
+            $('#home_confirmed')[0].innerText = result.confirmed;
+            $('#home_confirmedRelative')[0].innerText = result.confirmedRelative;
+            $('#home_overseasInput')[0].innerText = result.overseasInput;
+            $('#home_overseasInputRelative')[0].innerText = result.overseasInputRelative;
+            $('#home_cured')[0].innerText = result.cured;
+            $('#home_curedRelative')[0].innerText = result.curedRelative;
+            $('#home_died')[0].innerText = result.died;
+            $('#home_diedRelative')[0].innerText = result.diedRelative;
+            $('#home_overview')[0].innerHTML = result.updatedTime;
+        }
+    });
+
+    $.ajax({
+        cache: false,
+        type: "GET",
+        url: "/",
+        data: null,
+        dataType: "json",
+        async: false,
+        error: function (request) {
+            alert("世界疫情概况发送请求失败！");
+        },
+        success: function (result) {
+            $('#home_curConfirm')[0].innerHTML = result.curConfirm;
+            console.log(result.curConfirm);
+            alert(result.curConfirm);
+            $('#confirmed')[0].innerText = result.confirmed;
+            $('#confirmedRelative')[0].innerText = result.confirmedRelative;
+            $('#cured')[0].innerText = result.cured;
+            $('#curedRelative')[0].innerText = result.curedRelative;
+            $('#died')[0].innerText = result.died;
+            $('#diedRelative')[0].innerText = result.diedRelative;
+            $('#foreignUpdatedTime')[0].innerHTML = result.updatedTime
+        }
+    });
+</script>
+<script>
+    function gotoTop(minHeight) {
+
+        // 定义点击返回顶部图标后向上滚动的动画
+        $("#gotoTop").click(
+            function () {
+                $('html,body').animate({scrollTop: '0px'}, 'slow');
+            })
+
+        // 获取页面的最小高度，无传入值则默认为600像素
+        minHeight ? minHeight = minHeight : minHeight = 600;
+
+        // 为窗口的scroll事件绑定处理函数
+        $(window).scroll(function () {
+
+            // 获取窗口的滚动条的垂直滚动距离
+            var s = $(window).scrollTop();
+
+            // 当窗口的滚动条的垂直距离大于页面的最小高度时，让返回顶部图标渐现，否则渐隐
+            if (s > minHeight) {
+                $("#gotoTop").fadeIn(500);
+            } else {
+                $("#gotoTop").fadeOut(500);
+            }
+
+        });
+    }
+
+    gotoTop();
+</script>
+</body>
+</html>

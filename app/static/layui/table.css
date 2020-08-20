@@ -1,0 +1,6 @@
+table tbody tr td:nth-child(1) {
+    border: 1px solid #e7eaee;
+    text-align: left;
+    padding-left: 15px;
+    color: #009E94;
+}

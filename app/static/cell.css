@@ -1,0 +1,43 @@
+.cell {
+    font-size: 1.3125rem;
+    font-family: PingFangSC-Medium;
+    font-weight: 700;
+}
+.Relative {
+    line-height: .6875rem;
+    text-align: center;
+}
+.curConfirm {
+    color:#ff6a57;
+}
+
+.asymptomatic {
+    color: #e86d48;
+}
+
+.unconfirmed{
+    color: #ec9217;
+}
+.icu {
+    color: #545499;
+}
+.confirmed{
+    color: #e83132;
+}
+.overseasInput{
+    color: #476da0;
+}
+.cured{
+    color: #10aeb5;
+}
+.died{
+    color: #4d5054;
+}
+.grayWord {
+    font-size: .6875rem;
+    height: .6875rem;
+    line-height: .6875rem;
+    margin-top: .375rem;
+    color: #999;
+    text-align: center;
+}
